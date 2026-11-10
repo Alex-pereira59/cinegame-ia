@@ -1,4 +1,7 @@
-from datetime import date
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from app.config import get_settings
 
 from tests.conftest import login
 
@@ -48,7 +51,7 @@ def test_historial_propio_y_general(client, admin_h, user_h, llm):
     assert client.get("/api/historial/consultas?usuario_id=99", headers=user_h).json() == propio
     todos = client.get("/api/historial/consultas", headers=admin_h).json()
     assert {c["username"] for c in todos} == {"alex", "maria"}
-    hoy = date.today().isoformat()
+    hoy = datetime.now(ZoneInfo(get_settings().app_timezone)).date().isoformat()
     f = client.get(f"/api/historial/consultas?servicio=chat_rag&desde={hoy}&hasta={hoy}", headers=admin_h).json()
     assert len(f) == 2
     assert client.get("/api/historial/consultas?servicio=novedades", headers=admin_h).json() == []
