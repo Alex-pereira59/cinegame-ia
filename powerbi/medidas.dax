@@ -1,0 +1,5 @@
+// Medidas para la tabla "consultas_detalle" (Modelado → Nueva medida)
+Consultas = COUNTROWS(consultas_detalle)
+Tokens total = SUM(consultas_detalle[tokens_total])
+Tokens entrada = SUM(consultas_detalle[tokens_entrada])
+Tokens salida = SUM(consultas_detalle[tokens_salida])

@@ -1,0 +1,59 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Pruebas automatizadas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+
+      - name: Instalar dependencias del backend
+        working-directory: backend
+        run: pip install -r requirements-dev.txt
+
+      - name: Ejecutar pruebas (servicios de IA, historial, consumo de tokens)
+        working-directory: backend
+        run: pytest -v
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Compilar frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  deploy:
+    name: Desplegar en Render
+    needs: test            # solo se ejecuta si las pruebas pasaron
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar deploy hook de Render
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+      - name: Verificar que la nueva versión responde
+        if: ${{ vars.APP_URL != '' }}
+        run: |
+          sleep 60
+          for i in $(seq 1 20); do
+            if curl -fsS "${{ vars.APP_URL }}/api/health"; then echo; echo "Aplicación en línea"; exit 0; fi
+            echo "Esperando despliegue ($i/20)..."; sleep 20
+          done
+          echo "La aplicación no respondió a tiempo"; exit 1

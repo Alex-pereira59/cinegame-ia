@@ -1,0 +1,38 @@
+flowchart LR
+    subgraph Clientes
+        U["👤 Usuario / Admin<br/>Navegador"]
+        PBI["📊 Power BI Desktop"]
+        PM["🧪 Postman"]
+    end
+    subgraph GH["GitHub"]
+        REPO["Repositorio<br/>main"]
+        GA["GitHub Actions<br/>pytest + build"]
+    end
+    subgraph Render["☁️ Render (hosting en la nube)"]
+        subgraph WEB["Servicio web (Docker)"]
+            FE["Frontend React<br/>(archivos estáticos)"]
+            API["API REST FastAPI<br/>JWT / API key · roles<br/>control de tokens · Swagger /docs"]
+            RAG["Chatbot RAG<br/>recuperación SQL + memoria"]
+            AG["Agentes<br/>recomendador · novedades"]
+        end
+        DB[("PostgreSQL<br/>usuarios · servicios_ia · titulos<br/>conversaciones · consultas")]
+    end
+    subgraph EXT["Servicios externos"]
+        LLM["🤖 Groq API<br/>Llama 3.3 70B"]
+        WIKI["Wikipedia API<br/>(reseñas/recepción)"]
+        NEWS["Google News RSS<br/>(noticias)"]
+    end
+
+    U -- "HTTPS" --> FE
+    FE -- "fetch /api/* + Bearer JWT" --> API
+    PBI -- "GET /api/reportes/* + X-API-Key" --> API
+    PM -- "HTTPS + JWT / X-API-Key" --> API
+    API --> RAG & AG
+    API -- "SQLAlchemy" --> DB
+    RAG -- "SELECT titulos" --> DB
+    RAG -- "prompt + contexto" --> LLM
+    AG -- "tool calling" --> LLM
+    AG -- "buscar_catalogo" --> DB
+    AG --> WIKI & NEWS
+    REPO -- "push" --> GA
+    GA -- "deploy hook (solo si pasan las pruebas)" --> WEB

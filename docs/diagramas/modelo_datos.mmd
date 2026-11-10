@@ -1,0 +1,60 @@
+erDiagram
+    USUARIOS ||--o{ CONVERSACIONES : tiene
+    USUARIOS ||--o{ CONSULTAS : realiza
+    CONVERSACIONES ||--o{ CONSULTAS : contiene
+    USUARIOS {
+        int id PK
+        varchar username UK
+        varchar nombre
+        varchar email
+        varchar password_hash
+        varchar rol "admin | usuario"
+        bool activo
+        int limite_tokens
+        varchar api_key UK
+        timestamp creado_en
+    }
+    SERVICIOS_IA {
+        int id PK
+        varchar codigo UK "chat_rag | recomendador | novedades"
+        varchar nombre
+        text descripcion
+        bool activo
+        varchar modelo
+        float temperatura
+        int max_pasos
+        text prompt_sistema
+    }
+    TITULOS {
+        int id PK
+        varchar tipo "pelicula | videojuego"
+        varchar titulo
+        varchar genero
+        int anio
+        float calificacion
+        varchar creador
+        varchar plataforma
+        varchar clasificacion
+        text descripcion
+    }
+    CONVERSACIONES {
+        int id PK
+        int usuario_id FK
+        varchar servicio
+        varchar titulo
+        timestamp creado_en
+    }
+    CONSULTAS {
+        int id PK
+        int conversacion_id FK
+        int usuario_id FK
+        varchar servicio
+        text pregunta
+        text respuesta
+        text fuentes "JSON"
+        text pasos "JSON"
+        int tokens_entrada
+        int tokens_salida
+        int tokens_total
+        timestamp creado_en
+    }

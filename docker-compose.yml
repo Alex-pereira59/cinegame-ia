@@ -1,0 +1,21 @@
+# Desarrollo local: PostgreSQL + aplicación completa en http://localhost:8000
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: cinegame
+      POSTGRES_PASSWORD: cinegame
+      POSTGRES_DB: cinegame
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d   # ejecuta 01_schema.sql y 02_datos.sql al crear la BD
+  app:
+    build: .
+    depends_on: [db]
+    ports: ["8000:8000"]
+    env_file: [backend/.env]
+    environment:
+      DATABASE_URL: postgresql://cinegame:cinegame@db:5432/cinegame
+volumes:
+  pgdata:

@@ -1,0 +1,11 @@
+node_modules/
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+*.db
+.env
+backend/static/
+frontend/dist/
+*.pbix.bak
+.DS_Store

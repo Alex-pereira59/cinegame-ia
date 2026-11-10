@@ -1,0 +1,21 @@
+sequenceDiagram
+    autonumber
+    actor U as Usuario (navegador)
+    participant FE as Frontend React
+    participant API as FastAPI
+    participant DB as PostgreSQL
+    participant LLM as Groq (LLM)
+    U->>FE: Escribe pregunta en el chat
+    FE->>API: POST /api/ia/chat {pregunta, conversacion_id} + Bearer JWT
+    API->>API: Valida JWT y rol
+    API->>DB: ¿Servicio activo? ¿tokens usados < límite?
+    alt Sin cuota o servicio inactivo
+        API-->>FE: 429 / 403
+    else Permitido
+        API->>DB: Recupera títulos relevantes (RAG) + historial de la conversación (memoria)
+        API->>LLM: Prompt del sistema + CONTEXTO + memoria + pregunta
+        LLM-->>API: Respuesta + usage (tokens entrada/salida)
+        API->>DB: INSERT consultas (pregunta, respuesta, fuentes, tokens)
+        API-->>FE: respuesta, fuentes, pasos, tokens restantes
+        FE-->>U: Muestra respuesta, fuentes y consumo
+    end

@@ -1,0 +1,11 @@
+sequenceDiagram
+    autonumber
+    participant PBI as Power BI Desktop
+    participant API as FastAPI
+    participant DB as PostgreSQL
+    PBI->>API: GET /api/reportes/consultas-detalle (header X-API-Key)
+    API->>DB: Busca usuario por API key
+    API->>DB: SELECT consultas JOIN usuarios (filtrado por rol)
+    DB-->>API: Filas
+    API-->>PBI: JSON (fecha, usuario, servicio, tokens)
+    PBI->>PBI: Segmentaciones por fecha y servicio → mismos totales que /reporte de la web
