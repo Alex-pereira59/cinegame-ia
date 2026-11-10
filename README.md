@@ -1,4 +1,4 @@
-# 🎬 CineGame AI
+# CineGame AI
 
 Aplicación web con servicios de Inteligencia Artificial sobre un catálogo de películas y videojuegos.
 Proyecto final — Programación Comercial.
